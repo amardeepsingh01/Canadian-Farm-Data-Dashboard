@@ -1,0 +1,60 @@
+{% extends 'farm/base.html' %}
+
+{% block content %}
+<h2>Dashboard</h2>
+
+<a href="{% url 'farm:charts' %}" class="btn btn-primary">
+    View Charts
+</a>
+<a href="{% url 'farm:comparison' %}" class="btn btn-success">
+    ⚖️ Compare Provinces & Crops
+</a>
+<a href="{% url 'farm:prediction' %}" class="btn btn-warning">
+    🔮 Prediction
+</a>
+
+{% if user.is_authenticated and user.is_superuser %}
+    <a href="/upload/" class="btn btn-dark">📤 Upload CSV</a>
+{% endif %}
+
+<div class="row mt-4">
+
+    <div class="col-md-2">
+        <div class="card bg-primary text-white text-center p-3">
+            <h6>Total Records</h6>
+            <h4>{{ total_records }}</h4>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-success text-white text-center p-3">
+            <h6>Avg Yield</h6>
+            <h4>{{ avg_yield }}</h4>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-info text-white text-center p-3">
+            <h6>Latest Year</h6>
+            <h4>{{ latest_year }}</h4>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark text-center p-3">
+            <h6>Total Farm Value</h6>
+            <h4>{{ total_value }}</h4>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-dark text-white text-center p-3">
+            <h6>Best Crop</h6>
+            <h4>{{ best_crop }}</h4>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

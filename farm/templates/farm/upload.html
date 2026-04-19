@@ -1,0 +1,24 @@
+{% extends 'farm/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">📤 Upload CSV Dataset</h2>
+
+<div class="card p-4 shadow-sm">
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- 🔥 Manual input (BEST FIX) -->
+        <div class="mb-3">
+            <input type="file" name="file" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Upload File
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}

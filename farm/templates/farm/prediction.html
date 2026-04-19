@@ -1,0 +1,111 @@
+{% extends 'farm/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">🔮 Crop Success Prediction</h2>
+
+<!-- INPUT CARD -->
+<div class="card p-4 shadow-sm mb-4">
+
+    <div class="row">
+
+        <!-- Crop -->
+        <div class="col-md-4">
+            <label class="form-label">Crop</label>
+            <select id="crop" class="form-select">
+                {% for c in crops %}
+                <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Province -->
+        <div class="col-md-4">
+            <label class="form-label">Province</label>
+            <select id="province" class="form-select">
+                {% for p in provinces %}
+                <option value="{{ p }}">{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Rainfall -->
+        <div class="col-md-4">
+            <label class="form-label">Rainfall (mm)</label>
+            <input type="number" id="rainfall" class="form-control" placeholder="e.g. 500">
+        </div>
+
+        <!-- Temperature -->
+        <div class="col-md-4 mt-3">
+            <label class="form-label">Temperature (°C)</label>
+            <input type="number" id="temperature" class="form-control" placeholder="e.g. 20">
+        </div>
+
+        <!-- Irrigation -->
+        <div class="col-md-4 mt-3">
+            <label class="form-label">Irrigation</label>
+            <select id="irrigation" class="form-select">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- Button -->
+    <button onclick="predict()" class="btn btn-primary mt-3 w-100">
+        🔍 Predict
+    </button>
+
+</div>
+
+<!-- RESULT CARD -->
+<div class="card p-4 shadow-sm text-center">
+
+    <h4>Prediction Result</h4>
+
+    <h2 id="predictionResult" class="mt-3 text-primary">
+        Click "Predict" to see result
+    </h2>
+
+</div>
+
+<script>
+async function predict() {
+
+    const crop = document.getElementById('crop').value;
+    const province = document.getElementById('province').value;
+    const rainfall = document.getElementById('rainfall').value;
+    const temperature = document.getElementById('temperature').value;
+    const irrigation = document.getElementById('irrigation').value;
+
+    const resultBox = document.getElementById('predictionResult');
+
+    // Loading effect
+    resultBox.innerText = "⏳ Predicting...";
+    resultBox.className = "mt-3 text-secondary";
+
+    try {
+        const res = await fetch(`/api/predict/?crop=${crop}&province=${province}&rainfall=${rainfall}&temperature=${temperature}&irrigation=${irrigation}`);
+        const data = await res.json();
+
+        resultBox.innerText = data.result;
+
+        // Color change
+        if (data.result.includes("High")) {
+            resultBox.className = "mt-3 text-success";
+        } else if (data.result.includes("Low")) {
+            resultBox.className = "mt-3 text-danger";
+        } else {
+            resultBox.className = "mt-3 text-warning";
+        }
+
+    } catch (error) {
+        resultBox.innerText = "⚠️ Error in prediction";
+        resultBox.className = "mt-3 text-danger";
+    }
+}
+</script>
+
+{% endblock %}
+

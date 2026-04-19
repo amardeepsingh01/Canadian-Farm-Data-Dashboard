@@ -1,0 +1,139 @@
+{% extends 'farm/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">📊 Advanced Farm Dashboard</h2>
+
+<!-- FILTER SECTION -->
+<div class="card p-3 mb-4 shadow-sm">
+    <div class="row">
+
+        <!-- Crop Dropdown -->
+        <div class="col-md-4">
+            <label class="form-label">Crop</label>
+            <select id="crop" class="form-select">
+                <option value="">All Crops</option>
+                {% for c in crops %}
+                <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Province Dropdown -->
+        <div class="col-md-4">
+            <label class="form-label">Province</label>
+            <select id="province" class="form-select">
+                <option value="">All Provinces</option>
+                {% for p in provinces %}
+                <option value="{{ p }}">{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Button -->
+        <div class="col-md-4 d-flex align-items-end">
+            <button onclick="updateAllCharts()" class="btn btn-primary w-100">
+                🔄 Update Charts
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- TREND CHART -->
+<div class="card p-3 shadow-sm mb-4">
+    <h5>📈 Yield Trend Over Time</h5>
+    <canvas id="trendChart"></canvas>
+</div>
+
+<!-- BAR CHART -->
+<div class="card p-3 shadow-sm">
+    <h5 id="barTitle">📊 Crop-wise Farm Value</h5>
+    <canvas id="barChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let trendChart;
+let barChart;
+
+// 🔹 UPDATE BOTH CHARTS
+function updateAllCharts() {
+    loadTrendChart();
+    loadBarChart();
+}
+
+// 🔹 LOAD TREND CHART
+async function loadTrendChart() {
+    const crop = document.getElementById('crop').value;
+    const province = document.getElementById('province').value;
+
+    const res = await fetch(`/api/trend/?crop=${crop}&province=${province}`);
+    const data = await res.json();
+
+    if (trendChart) trendChart.destroy();
+
+    trendChart = new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Average Yield (kg/ha)',
+                data: data.values,
+                borderColor: 'green',
+                backgroundColor: 'rgba(0,128,0,0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Crop Yield Trend'
+                }
+            }
+        }
+    });
+}
+
+// 🔹 LOAD BAR CHART (WITH PROVINCE FILTER 🔥)
+async function loadBarChart() {
+    const province = document.getElementById('province').value;
+
+    const res = await fetch(`/api/crop-value/?province=${province}`);
+    const data = await res.json();
+
+    if (barChart) barChart.destroy();
+
+    // Dynamic title
+    document.getElementById("barTitle").innerText =
+        province ? `📊 Farm Value in ${province}` : "📊 Crop-wise Farm Value (All Provinces)";
+
+    barChart = new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Total Farm Value ($)',
+                data: data.values,
+                backgroundColor: 'orange'
+            }]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// 🔹 LOAD ON PAGE START
+updateAllCharts();
+
+</script>
+
+{% endblock %}

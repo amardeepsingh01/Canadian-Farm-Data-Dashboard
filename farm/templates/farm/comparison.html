@@ -1,0 +1,108 @@
+{% extends 'farm/base.html' %}
+
+{% block content %}
+
+<h2>⚖️ Province & Crop Comparison</h2>
+
+<div class="row mb-4">
+
+    <div class="col-md-3">
+        <label>Province 1</label>
+        <select id="province1" class="form-select">
+            {% for p in provinces %}
+            <option value="{{ p }}">{{ p }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label>Province 2</label>
+        <select id="province2" class="form-select">
+            {% for p in provinces %}
+            <option value="{{ p }}">{{ p }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label>Crop 1</label>
+        <select id="crop1" class="form-select">
+            {% for c in crops %}
+            <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label>Crop 2</label>
+        <select id="crop2" class="form-select">
+            {% for c in crops %}
+            <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+    <label>Metric</label>
+    <select id="metric" class="form-select">
+        <option value="value">Farm Value</option>
+        <option value="yield">Yield</option>
+        <option value="rainfall">Rainfall</option>
+        <option value="temperature">Temperature</option>
+    </select>
+</div>
+
+</div>
+
+<button onclick="compareData()" class="btn btn-success mb-3">Compare</button>
+
+<canvas id="comparisonChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let compareChart;
+
+async function compareData() {
+
+    const p1 = document.getElementById('province1').value;
+    const p2 = document.getElementById('province2').value;
+    const c1 = document.getElementById('crop1').value;
+    const c2 = document.getElementById('crop2').value;
+    const metric = document.getElementById('metric').value;
+
+    const res = await fetch(`/api/compare/?p1=${p1}&p2=${p2}&c1=${c1}&c2=${c2}&metric=${metric}`);
+    const data = await res.json();
+
+    if (compareChart) compareChart.destroy();
+
+    compareChart = new Chart(document.getElementById('comparisonChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Comparison'],
+            datasets: [
+                {
+                    label: data.labels[0],
+                    data: [data.values[0]],
+                    backgroundColor: '#36a2eb'
+                },
+                {
+                    label: data.labels[1],
+                    data: [data.values[1]],
+                    backgroundColor: '#ff6384'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Comparison Chart'
+                }
+            }
+        }
+    });
+}
+</script>
+
+{% endblock %}
