@@ -22,5 +22,19 @@ This project is a Django-based web application that visualizes Canadian agricult
 
 ### 1. Clone repository
 ```bash
-git clone <your-repo-link>
+git clone <https://github.com/amardeepsingh01/Canadian-Farm-Data-Dashboard>
 cd project-folder
+
+### 2. Create virtual environment
+
+python -m venv env
+source env/bin/activate
+
+### 3. Install dependencies
+pip install django pandas scikit-learn
+
+### 4. Run migrations
+python manage.py migrate
+
+### 5. Run server
+python manage.py runserver
